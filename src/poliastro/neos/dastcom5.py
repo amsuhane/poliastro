@@ -5,6 +5,7 @@ import os
 import re
 import urllib.request
 import zipfile
+from tqdm import tqdm
 
 import astropy.units as u
 import numpy as np
@@ -535,17 +536,21 @@ def download_dastcom5():
         if not os.path.isdir(POLIASTRO_LOCAL_PATH):
             os.makedirs(POLIASTRO_LOCAL_PATH)
 
-        urllib.request.urlretrieve(
-            FTP_DB_URL + "dastcom5.zip", dastcom5_zip_path, _show_download_progress
-        )
+        print("Downloading datscom5.zip")
+        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip") as t:
+        	urllib.request.urlretrieve(FTP_DB_URL+"dastcom5.zip", filename=dastcom5_zip_path, reporthook=t.update_to)
+
     with zipfile.ZipFile(dastcom5_zip_path) as myzip:
         myzip.extractall(POLIASTRO_LOCAL_PATH)
 
 
-def _show_download_progress(transferred, block, totalsize):
-    trans_mb = transferred * block / (1024 * 1024)
-    total_mb = totalsize / (1024 * 1024)
-    print("%.2f MB / %.2f MB" % (trans_mb, total_mb), end="\r", flush=True)
+class DownloadProgressBar(tqdm):
+    """Helper class for displaying download progress bar when using download_dastcom5() function
+    """
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
 
 
 def entire_db():
