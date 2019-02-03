@@ -518,6 +518,15 @@ def read_record(record):
     return body_data
 
 
+
+class DownloadProgressBar(tqdm):
+    """Helper class for displaying download progress bar when using download_dastcom5() function
+    """
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
+
 def download_dastcom5():
     """Downloads DASTCOM5 database.
 
@@ -542,15 +551,6 @@ def download_dastcom5():
 
     with zipfile.ZipFile(dastcom5_zip_path) as myzip:
         myzip.extractall(POLIASTRO_LOCAL_PATH)
-
-
-class DownloadProgressBar(tqdm):
-    """Helper class for displaying download progress bar when using download_dastcom5() function
-    """
-    def update_to(self, b=1, bsize=1, tsize=None):
-        if tsize is not None:
-            self.total = tsize
-        self.update(b * bsize - self.n)
 
 
 def entire_db():

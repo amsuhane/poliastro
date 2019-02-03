@@ -115,12 +115,13 @@ def test_download_dastcom5_creates_folder(
 @mock.patch("poliastro.neos.dastcom5.zipfile")
 @mock.patch("poliastro.neos.dastcom5.os.path.isdir")
 @mock.patch("poliastro.neos.dastcom5.urllib.request.urlretrieve")
-def test_download_dastcom5_downloads_file(mock_request, mock_isdir, mock_zipfile):
+@mock.patch("poliastro.neos.dastcom5.DownloadProgressBar")
+def test_download_dastcom5_downloads_file(mock_request, mock_isdir, mock_zipfile, DownloadProgressBar):
     mock_isdir.side_effect = lambda x: x == dastcom5.POLIASTRO_LOCAL_PATH
     mock_zipfile.is_zipfile.return_value = False
     dastcom5.download_dastcom5()
     mock_request.assert_called_once_with(
         dastcom5.FTP_DB_URL + "dastcom5.zip",
         os.path.join(dastcom5.POLIASTRO_LOCAL_PATH, "dastcom5.zip"),
-        dastcom5._show_download_progress,
+        DownloadProgressBar.update_to,
     )
